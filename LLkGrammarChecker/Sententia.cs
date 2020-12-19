@@ -18,6 +18,11 @@ namespace LLkGrammarChecker
 
         public GrammarSymbol this[int index] => elements[index];
 
+        public Sententia()
+        {
+            this.elements = new GrammarSymbol[0];
+        }
+
         public Sententia(IEnumerable<GrammarSymbol> elements)
         {
             this.elements = elements.ToArray();
@@ -69,6 +74,16 @@ namespace LLkGrammarChecker
         public static Sententia operator +(Sententia left, Sententia right)
         {
             return new Sententia(left.Concat(right));
+        }
+
+        public static Sententia operator +(Sententia left, Nonterminal right)
+        {
+            return new Sententia(left.Concat(new GrammarSymbol[1] { right }));
+        }
+
+        public static Sententia operator +(Sententia left, Terminal right)
+        {
+            return new Sententia(left.Concat(new GrammarSymbol[1] { right }));
         }
 
         public static bool operator ==(Sententia left, Nonterminal right)
