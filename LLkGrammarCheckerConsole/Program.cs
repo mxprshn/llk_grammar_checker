@@ -4,7 +4,7 @@ namespace LLkGrammarCheckerConsole
 {
     class Program
     {
-        static async void Main(string[] args)
+        static void Main(string[] args)
         {
             
         }
