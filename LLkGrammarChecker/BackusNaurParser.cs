@@ -19,11 +19,13 @@ namespace LLkGrammarChecker
 
         public static CFG FromString(string source)
         {
-            var grammar = new CFG();
+            CFG grammar = null;
 
-            foreach (var ruleString in source.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            var lines = source.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            for (var i = 0; i < lines.Length; ++i)
             {
-                var leftAndRight = ruleString.Split("::=");
+                var leftAndRight = lines[i].Split("::=");
 
                 if (leftAndRight.Length != 2) throw new BackusNaurParserException("::= is missing or appears more than once in line.");
 
@@ -31,7 +33,14 @@ namespace LLkGrammarChecker
 
                 var nonterminal = new Nonterminal(FromAngleBrackets(left));
 
-                grammar.AddNonterminal(nonterminal);
+                if (i != 0)
+                {
+                    grammar.AddNonterminal(nonterminal);                    
+                }
+                else
+                {
+                    grammar = new CFG(nonterminal);
+                }                
 
                 if (grammar.Productions.Count(p => p.left == nonterminal) != 0)
                 {
@@ -54,18 +63,23 @@ namespace LLkGrammarChecker
                         if (IsInAngleBrackets(productionSymbol))
                         {
                             var productionNonterminal = new Nonterminal(productionSymbol);
-                            sententia = sententia + productionNonterminal;
+                            sententia += productionNonterminal;
                         }
                         else
                         {
                             var withoutQuotes = FromQuotes(productionSymbol);
                             var productionTerminal = new Terminal(withoutQuotes);
-                            sententia = sententia + productionTerminal;
+                            sententia += productionTerminal;
                         }
                     }
 
                     grammar.AddProduction(new Sententia(nonterminal), sententia);
                 }
+            }
+
+            if (grammar == null)
+            {
+                throw new BackusNaurParserException("Cannot find any nonterminal definitions.");
             }
 
             return grammar;

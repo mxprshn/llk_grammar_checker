@@ -20,12 +20,23 @@ namespace LLkGrammarChecker
 
         public override bool Equals(object obj)
         {
-            return ((GrammarSymbol)obj).Literal == Literal;
+            var haveSameType = obj.GetType() == this.GetType();
+            return haveSameType && ((GrammarSymbol)obj).Literal == Literal ;
         }
 
         public override string ToString()
         {
             return Literal;
+        }
+
+        public static bool operator ==(GrammarSymbol left, GrammarSymbol right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(GrammarSymbol left, GrammarSymbol right)
+        {
+            return !left.Equals(right);
         }
     }
 }

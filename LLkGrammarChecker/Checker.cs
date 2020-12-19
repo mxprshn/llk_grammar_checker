@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using LLkGrammarChecker.Extensions;
 
 namespace LLkGrammarChecker
 {
@@ -50,8 +51,9 @@ namespace LLkGrammarChecker
                 }
             }
 
-            while (!AreApproximationsEqual(prevApproximations, approximations))
+            while (!AreFirstApproximationsEqual(prevApproximations, approximations))
             {
+                // TODO: deep copy
                 prevApproximations = new Dictionary<GrammarSymbol, HashSet<Sententia>>(approximations);
                 
                 foreach (var nonterminal in grammar.Nonterminals)
@@ -81,6 +83,88 @@ namespace LLkGrammarChecker
             return result;
         }
 
+        public static HashSet<HashSet<Sententia>> Sigma(CFG grammar, Nonterminal argument, int dimension = 1)
+        {
+            if (dimension <= 0)
+            {
+                throw new ArgumentException("Dimension must be a positive number.");
+            }
+
+            if (!grammar.Nonterminals.Contains(argument))
+            {
+                throw new ArgumentException($"Nonterminal {argument} is not from grammar.");
+            }
+
+            var firstCash = new Dictionary<Sententia, HashSet<Sententia>>();
+
+            var prevApproximations = new Dictionary<(Nonterminal, Nonterminal), HashSet<HashSet<Sententia>>>();
+            var approximations = new Dictionary<(Nonterminal, Nonterminal), HashSet<HashSet<Sententia>>>();
+
+            foreach (var leftNonterminal in grammar.Nonterminals)
+            {
+                foreach (var rightNonterminal in grammar.Nonterminals)
+                {
+                    var values = new HashSet<HashSet<Sententia>>();
+
+                    foreach (var production in grammar.Productions.Where(p => p.left == leftNonterminal))
+                    {
+                        for (var i = 0; i < production.right.Length; ++i)
+                        {
+                            if (production.right[i] == rightNonterminal)
+                            {
+                                var tail = production.right.TakeLast(production.right.Length - i + 1).ToSententia();
+                                var tailFirst = firstCash.GetValueOrDefault(tail) ?? First(grammar, tail, dimension);
+                                firstCash.TryAdd(tail, tailFirst);
+
+                                if (approximations.GetValueOrDefault((leftNonterminal, rightNonterminal)) == null)
+                                {
+                                    approximations[(leftNonterminal, rightNonterminal)] = new HashSet<HashSet<Sententia>>();
+                                }
+
+                                approximations[(leftNonterminal, rightNonterminal)].Add(tailFirst);
+                            }
+                        }
+                    }
+                }
+            }
+
+            while (!AreSigmaApproximationsEqual(prevApproximations, approximations))
+            {
+                // TODO: deep copy
+                prevApproximations = new Dictionary<(Nonterminal, Nonterminal), HashSet<HashSet<Sententia>>>(approximations);
+
+                foreach (var leftNonterminal in grammar.Nonterminals)
+                {
+                    foreach (var rightNonterminal in grammar.Nonterminals)
+                    {
+                        foreach (var production in grammar.Productions.Where(p => p.left == leftNonterminal))
+                        {
+                            for (var i = 0; i < production.right.Length; ++i)
+                            {
+                                if (!(production.right[i] is Nonterminal)) continue;
+
+                                foreach (var approximation in prevApproximations[(production.right[i] as Nonterminal, rightNonterminal)])
+                                {
+                                    var tail = production.right.TakeLast(production.right.Length - i + 1).ToSententia();
+                                    var tailFirst = firstCash.GetValueOrDefault(tail) ?? First(grammar, tail, dimension);
+                                    firstCash.TryAdd(tail, tailFirst);
+
+
+                                    var directSum = TerminalDirectSum(approximation, tailFirst, dimension);
+
+                                    // TODO: deep check
+                                    approximations[(leftNonterminal, rightNonterminal)].Add(directSum);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // TODO: add epsilon support
+            return approximations[(grammar.StartSymbol, argument)];
+        }
+
         private static HashSet<Sententia> TerminalDirectSum(HashSet<Sententia> left,
             HashSet<Sententia> right, int dimension = 1)
         {
@@ -105,7 +189,7 @@ namespace LLkGrammarChecker
             return result;
         }
 
-        private static bool AreApproximationsEqual(Dictionary<GrammarSymbol, HashSet<Sententia>> one,
+        private static bool AreFirstApproximationsEqual(Dictionary<GrammarSymbol, HashSet<Sententia>> one,
             Dictionary<GrammarSymbol, HashSet<Sententia>> another)
         {
             if (one.Count != another.Count)
@@ -113,13 +197,42 @@ namespace LLkGrammarChecker
                 return false;
             }
 
-            foreach (var (symbolsInOne, valuesInOne) in one)
+            foreach (var (keyInOne, valuesInOne) in one)
             {
-                var valuesInAnother = another.GetValueOrDefault(symbolsInOne);
+                var valuesInAnother = another.GetValueOrDefault(keyInOne);
 
                 if (valuesInAnother == null || !valuesInOne.SetEquals(valuesInAnother))
                 {
                     return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool AreSigmaApproximationsEqual(Dictionary<(Nonterminal, Nonterminal), HashSet<HashSet<Sententia>>> one,
+            Dictionary<(Nonterminal, Nonterminal), HashSet<HashSet<Sententia>>> another)
+        {
+            if (one.Count != another.Count)
+            {
+                return false;
+            }
+
+            foreach (var (keyInOne, valuesInOne) in one)
+            {
+                var valuesInAnother = another.GetValueOrDefault(keyInOne);
+
+                if (valuesInAnother == null || valuesInAnother.Count != valuesInOne.Count)
+                {
+                    return false;
+                }
+
+                foreach (var valueInOne in valuesInOne)
+                {
+                    if (valuesInAnother.Where(v => v.SetEquals(valueInOne)).Count() == 0)
+                    {
+                        return false;
+                    }
                 }
             }
 

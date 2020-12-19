@@ -7,6 +7,12 @@ namespace LLkGrammarChecker
 {
     public class Grammar
     {
+        public Grammar(Nonterminal startSymbol)
+        {
+            StartSymbol = startSymbol;
+            AddNonterminal(startSymbol);
+        }
+
         private HashSet<Nonterminal> nonterminals = new HashSet<Nonterminal>();
         public IReadOnlyCollection<Nonterminal> Nonterminals => nonterminals;
 
@@ -15,6 +21,8 @@ namespace LLkGrammarChecker
 
         private HashSet<(Sententia left, Sententia right)> productions = new HashSet<(Sententia left, Sententia right)>();
         public IReadOnlyCollection<(Sententia left, Sententia right)> Productions => productions;
+
+        public Nonterminal StartSymbol { get; private set; }
 
         public void AddNonterminal(Nonterminal nonterminal)
         {

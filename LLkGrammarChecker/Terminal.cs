@@ -7,6 +7,5 @@ namespace LLkGrammarChecker
     public class Terminal : GrammarSymbol
     {
         public Terminal(string literal) : base(literal) { }
-
     }
 }
