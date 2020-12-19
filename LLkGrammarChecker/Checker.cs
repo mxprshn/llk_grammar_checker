@@ -68,7 +68,7 @@ namespace LLkGrammarChecker
                                 prevApproximations[production.right[i]], dimension);
                         }
 
-                        approximations[nonterminal] = approximations[nonterminal].Union(directSumOfRights).ToHashSet();
+                        approximations[nonterminal].UnionWith(directSumOfRights);
                     }
                 }
             }
@@ -104,8 +104,6 @@ namespace LLkGrammarChecker
             {
                 foreach (var rightNonterminal in grammar.Nonterminals)
                 {
-                    var values = new HashSet<HashSet<Sententia>>();
-
                     foreach (var production in grammar.Productions.Where(p => p.left == leftNonterminal))
                     {
                         for (var i = 0; i < production.right.Length; ++i)
@@ -165,6 +163,82 @@ namespace LLkGrammarChecker
             return approximations[(grammar.StartSymbol, argument)];
         }
 
+        public static HashSet<Sententia> Follow(CFG grammar, Nonterminal argument, int dimension = 1)
+        {
+            if (dimension <= 0)
+            {
+                throw new ArgumentException("Dimension must be a positive number.");
+            }
+
+            if (!grammar.Nonterminals.Contains(argument))
+            {
+                throw new ArgumentException($"Nonterminal {argument} is not from grammar.");
+            }
+
+            var firstCash = new Dictionary<Sententia, HashSet<Sententia>>();
+
+            var prevApproximations = new Dictionary<(Nonterminal, Nonterminal), HashSet<Sententia>>();
+            var approximations = new Dictionary<(Nonterminal, Nonterminal), HashSet<Sententia>>();
+
+            foreach (var leftNonterminal in grammar.Nonterminals)
+            {
+                foreach (var rightNonterminal in grammar.Nonterminals)
+                {
+                    foreach (var production in grammar.Productions.Where(p => p.left == leftNonterminal))
+                    {
+                        for (var i = 0; i < production.right.Length; ++i)
+                        {
+                            if (production.right[i] == rightNonterminal)
+                            {
+                                var tail = production.right.TakeLast(production.right.Length - i + 1).ToSententia();
+                                var tailFirst = firstCash.GetValueOrDefault(tail) ?? First(grammar, tail, dimension);
+                                firstCash.TryAdd(tail, tailFirst);
+
+                                if (approximations.GetValueOrDefault((leftNonterminal, rightNonterminal)) == null)
+                                {
+                                    approximations[(leftNonterminal, rightNonterminal)] = new HashSet<Sententia>();
+                                }
+
+                                approximations[(leftNonterminal, rightNonterminal)].UnionWith(tailFirst);
+                            }
+                        }
+                    }
+                }
+            }
+
+            while (!AreFollowApproximationsEqual(prevApproximations, approximations))
+            {
+                // TODO: deep copy
+                prevApproximations = new Dictionary<(Nonterminal, Nonterminal), HashSet<Sententia>>(approximations);
+
+                foreach (var leftNonterminal in grammar.Nonterminals)
+                {
+                    foreach (var rightNonterminal in grammar.Nonterminals)
+                    {
+                        foreach (var production in grammar.Productions.Where(p => p.left == leftNonterminal))
+                        {
+                            for (var i = 0; i < production.right.Length; ++i)
+                            {
+                                if (!(production.right[i] is Nonterminal)) continue;
+
+                                var tail = production.right.TakeLast(production.right.Length - i + 1).ToSententia();
+                                var tailFirst = firstCash.GetValueOrDefault(tail) ?? First(grammar, tail, dimension);
+                                firstCash.TryAdd(tail, tailFirst);
+
+                                var directSum = TerminalDirectSum(prevApproximations[(production.right[i] as Nonterminal, rightNonterminal)], tailFirst, dimension);
+
+                                // TODO: deep check
+                                approximations[(leftNonterminal, rightNonterminal)].UnionWith(directSum);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // TODO: add epsilon support
+            return approximations[(grammar.StartSymbol, argument)];
+        }
+
         private static HashSet<Sententia> TerminalDirectSum(HashSet<Sententia> left,
             HashSet<Sententia> right, int dimension = 1)
         {
@@ -191,6 +265,27 @@ namespace LLkGrammarChecker
 
         private static bool AreFirstApproximationsEqual(Dictionary<GrammarSymbol, HashSet<Sententia>> one,
             Dictionary<GrammarSymbol, HashSet<Sententia>> another)
+        {
+            if (one.Count != another.Count)
+            {
+                return false;
+            }
+
+            foreach (var (keyInOne, valuesInOne) in one)
+            {
+                var valuesInAnother = another.GetValueOrDefault(keyInOne);
+
+                if (valuesInAnother == null || !valuesInOne.SetEquals(valuesInAnother))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool AreFollowApproximationsEqual(Dictionary<(Nonterminal, Nonterminal), HashSet<Sententia>> one,
+            Dictionary<(Nonterminal, Nonterminal), HashSet<Sententia>> another)
         {
             if (one.Count != another.Count)
             {
