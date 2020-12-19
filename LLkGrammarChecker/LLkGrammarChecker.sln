@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLkGrammarChecker", "LLkGrammarChecker.csproj", "{3C575C8C-4E8A-4C35-8592-A600C3C937C0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLkGrammarCheckerConsole", "..\LLkGrammarCheckerConsole\LLkGrammarCheckerConsole.csproj", "{FC87EB44-3C7F-484D-B23F-881CFDEC3219}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLkGrammarCheckerTests", "..\LLkGrammarCheckerTests\LLkGrammarCheckerTests.csproj", "{D7D95509-5A8B-420B-AF10-29E011B1217D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C575C8C-4E8A-4C35-8592-A600C3C937C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C575C8C-4E8A-4C35-8592-A600C3C937C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C575C8C-4E8A-4C35-8592-A600C3C937C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C575C8C-4E8A-4C35-8592-A600C3C937C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC87EB44-3C7F-484D-B23F-881CFDEC3219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC87EB44-3C7F-484D-B23F-881CFDEC3219}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC87EB44-3C7F-484D-B23F-881CFDEC3219}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC87EB44-3C7F-484D-B23F-881CFDEC3219}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7D95509-5A8B-420B-AF10-29E011B1217D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D95509-5A8B-420B-AF10-29E011B1217D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7D95509-5A8B-420B-AF10-29E011B1217D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D95509-5A8B-420B-AF10-29E011B1217D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E16DBD25-4999-468C-A6AA-BF894770502D}
+	EndGlobalSection
+EndGlobal
