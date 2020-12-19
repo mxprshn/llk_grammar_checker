@@ -24,24 +24,43 @@ namespace LLkGrammarChecker
 
         public Nonterminal StartSymbol { get; private set; }
 
-        public void AddNonterminal(Nonterminal nonterminal)
+        public Grammar AddNonterminal(Nonterminal nonterminal)
         {
             nonterminals.Add(nonterminal);
+            return this;
         }
 
-        public void AddTerminal(Terminal terminal)
+        public Grammar AddTerminal(Terminal terminal)
         {
             terminals.Add(terminal);
+            return this;
         }
 
-        public virtual void AddProduction(Sententia left, Sententia right)
+        public virtual Grammar AddProduction(Sententia left, Sententia right)
         {
             if (productions.Any(p => p.left == left && p.right == right))
             {
-                return;
+                return this;
             }
 
             productions.Add((left, right));
+
+            return this;
+        }
+
+        public Grammar AddProduction(Nonterminal left, Sententia right)
+        {
+            return AddProduction(new Sententia(left), right);
+        }
+
+        public Grammar AddProduction(Nonterminal left, GrammarSymbol right)
+        {
+            return AddProduction(new Sententia(left), new Sententia(right));
+        }
+
+        public Grammar AddProduction(Sententia left, GrammarSymbol right)
+        {
+            return AddProduction(new Sententia(left), new Sententia(right));
         }
     }
 }

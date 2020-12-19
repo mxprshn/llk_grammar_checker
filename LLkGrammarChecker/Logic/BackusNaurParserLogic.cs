@@ -5,19 +5,20 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using LLkGrammarChecker.Parser;
 
 namespace LLkGrammarChecker
 {
-    class BackusNaurParser
+    public class BackusNaurParserLogic : IParser
     {
-        public static async Task<CFG> FromFile(string path)
+        public async Task<CFG> FromFile(string path)
         {
             if (!File.Exists(path)) throw new FileNotFoundException();
 
             return FromString(await File.ReadAllTextAsync(path));
         }
 
-        public static CFG FromString(string source)
+        public CFG FromString(string source)
         {
             CFG grammar = null;
 
@@ -85,14 +86,14 @@ namespace LLkGrammarChecker
             return grammar;
         }
 
-        private static string FromAngleBrackets(string source)
+        private string FromAngleBrackets(string source)
         {
             if (!IsInAngleBrackets(source)) throw new BackusNaurParserException("Nonterminal should be enclosed in angle brackets.");
 
             return source.Substring(1, source.Length - 2);
         }
 
-        private static string FromQuotes(string source)
+        private string FromQuotes(string source)
         {
             if (!IsInQuotes(source))
             {
@@ -102,12 +103,12 @@ namespace LLkGrammarChecker
             return source.Substring(1, source.Length - 2);
         }
 
-        private static bool IsInAngleBrackets(string source)
+        private bool IsInAngleBrackets(string source)
         {
             return source.LastIndexOf('<') == 0 && source.IndexOf('>') == source.Length - 1;
         }
 
-        private static bool IsInQuotes(string source)
+        private bool IsInQuotes(string source)
         {
             return source.LastIndexOf('"') == source.Length - 1 && source.IndexOf('"') == 0;
         }

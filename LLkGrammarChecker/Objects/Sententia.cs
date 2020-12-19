@@ -63,25 +63,20 @@ namespace LLkGrammarChecker
 
         public IEnumerator<GrammarSymbol> GetEnumerator()
         {
-            return elements.GetEnumerator() as IEnumerator<GrammarSymbol>;
+            return ((IEnumerable<GrammarSymbol>)elements).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return elements.GetEnumerator();
+            return this.GetEnumerator();
         }
 
         public static Sententia operator +(Sententia left, Sententia right)
         {
-            return new Sententia(left.Concat(right));
+            return new Sententia(left.Concat(right.elements));
         }
 
-        public static Sententia operator +(Sententia left, Nonterminal right)
-        {
-            return new Sententia(left.Concat(new GrammarSymbol[1] { right }));
-        }
-
-        public static Sententia operator +(Sententia left, Terminal right)
+        public static Sententia operator +(Sententia left, GrammarSymbol right)
         {
             return new Sententia(left.Concat(new GrammarSymbol[1] { right }));
         }

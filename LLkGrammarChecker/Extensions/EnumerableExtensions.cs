@@ -4,7 +4,11 @@ using System.Text;
 
 namespace LLkGrammarChecker.Extensions
 {
-    class EnumerableExtensions
+    static class EnumerableExtensions
     {
+        public static Sententia ToSententia(this IEnumerable<GrammarSymbol> enumerable)
+        {
+            return new Sententia(enumerable);
+        }
     }
 }

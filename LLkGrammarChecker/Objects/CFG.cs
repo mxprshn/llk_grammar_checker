@@ -8,14 +8,14 @@ namespace LLkGrammarChecker
     {
         public CFG(Nonterminal startSymbol) : base(startSymbol) { }
 
-        public override void AddProduction(Sententia left, Sententia right)
+        public override Grammar AddProduction(Sententia left, Sententia right)
         {
             if (!left.IsNonterminal)
             {
                 throw new ArgumentException("CFG must contain only producions with one nonterminal in the left part.");
             }
 
-            base.AddProduction(left, right);
+            return base.AddProduction(left, right);
         }
     }
 }
