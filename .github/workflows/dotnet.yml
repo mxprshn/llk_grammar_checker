@@ -18,8 +18,8 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Restore dependencies
-      run: dotnet restore LLkGrammarChecker\LLkGrammarChecker.sln
+      run: dotnet restore "LLkGrammarChecker/LLkGrammarChecker.sln"
     - name: Build
-      run: dotnet build --no-restore LLkGrammarChecker\LLkGrammarChecker.sln
+      run: dotnet build --no-restore "LLkGrammarChecker/LLkGrammarChecker.sln"
     - name: Test
-      run: dotnet test --no-build --verbosity normal LLkGrammarChecker\LLkGrammarChecker.sln
+      run: dotnet test --no-build --verbosity normal "LLkGrammarChecker/LLkGrammarChecker.sln"
