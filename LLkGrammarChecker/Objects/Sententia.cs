@@ -71,6 +71,8 @@ namespace LLkGrammarChecker
             return this.GetEnumerator();
         }
 
+        public static Sententia Epsilon => new Sententia();
+
         public static Sententia operator +(Sententia left, Sententia right)
         {
             return new Sententia(left.Concat(right.elements));

@@ -68,12 +68,21 @@ namespace LLkGrammarChecker.Logic
                 {
                     foreach (var production in grammar.Productions.Where(p => p.left == nonterminal))
                     {
-                        var directSumOfRights = new HashSet<Sententia>(prevApproximations[production.left.First()]);
+                        var directSumOfRights = new HashSet<Sententia>();
 
-                        for (var i = 1; i < production.right.Length; ++i)
+                        if (production.right.Length > 0)
                         {
-                            directSumOfRights = TerminalDirectSum(directSumOfRights,
-                                prevApproximations[production.right[i]], dimension);
+                            directSumOfRights.UnionWith(prevApproximations[production.right.First()]);
+
+                            for (var i = 1; i < production.right.Length; ++i)
+                            {
+                                directSumOfRights = TerminalDirectSum(directSumOfRights,
+                                    prevApproximations[production.right[i]], dimension);
+                            }
+                        }
+                        else
+                        {
+                            directSumOfRights.Add(Sententia.Epsilon);
                         }
 
                         approximations[nonterminal].UnionWith(directSumOfRights);
