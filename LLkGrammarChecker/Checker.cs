@@ -32,12 +32,12 @@ namespace LLkGrammarChecker
 
             foreach (var terminal in grammar.Terminals)
             {
-                prevApproximations[terminal] = new HashSet<Sententia> { new Sententia(terminal) };
+                approximations[terminal] = new HashSet<Sententia> { new Sententia(terminal) };
             }
 
             foreach (var nonterminal in grammar.Nonterminals)
             {
-                prevApproximations[nonterminal] = new HashSet<Sententia>();
+                approximations[nonterminal] = new HashSet<Sententia>();
 
                 foreach (var production in grammar.Productions.Where(p => p.left == nonterminal))
                 {
@@ -45,14 +45,44 @@ namespace LLkGrammarChecker
 
                     if (!trimmed.ContainsNonterminals)
                     {
-                        prevApproximations[nonterminal].Add(trimmed);
+                        approximations[nonterminal].Add(trimmed);
                     }
                 }
             }
+
+            while (!AreApproximationsEqual(prevApproximations, approximations))
+            {
+                prevApproximations = new Dictionary<GrammarSymbol, HashSet<Sententia>>(approximations);
+                
+                foreach (var nonterminal in grammar.Nonterminals)
+                {
+                    foreach (var production in grammar.Productions.Where(p => p.left == nonterminal))
+                    {
+                        var directSumOfRights = new HashSet<Sententia>(prevApproximations[production.left.First()]);
+
+                        for (var i = 1; i < production.right.Length; ++i)
+                        {
+                            directSumOfRights = TerminalDirectSum(directSumOfRights,
+                                prevApproximations[production.right[i]], dimension);
+                        }
+
+                        approximations[nonterminal] = approximations[nonterminal].Union(directSumOfRights).ToHashSet();
+                    }
+                }
+            }
+
+            var result = new HashSet<Sententia>(approximations[argument.First()]);
+
+            for (var i = 1; i < argument.Length; ++i)
+            {
+                result = TerminalDirectSum(result, approximations[argument[i]], dimension);
+            }
+
+            return result;
         }
 
-        private static ICollection<Sententia> TerminalDirectSum(ICollection<Sententia> left,
-            ICollection<Sententia> right, int dimension = 1)
+        private static HashSet<Sententia> TerminalDirectSum(HashSet<Sententia> left,
+            HashSet<Sententia> right, int dimension = 1)
         {
             var result = new HashSet<Sententia>();
 
