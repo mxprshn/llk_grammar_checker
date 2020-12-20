@@ -126,6 +126,11 @@ namespace LLkGrammarChecker.Logic
             {
                 foreach (var rightNonterminal in grammar.Nonterminals)
                 {
+                    if (approximations.GetValueOrDefault((leftNonterminal, rightNonterminal)) == null)
+                    {
+                        approximations[(leftNonterminal, rightNonterminal)] = new HashSet<HashSet<SententialForm>>(HashSet<SententialForm>.CreateSetComparer());
+                    }
+
                     foreach (var production in grammar.Productions.Where(p => p.left == leftNonterminal))
                     {
                         for (var i = 0; i < production.right.Length; ++i)
@@ -135,11 +140,6 @@ namespace LLkGrammarChecker.Logic
                                 var tail = production.right.TakeLast(production.right.Length - i - 1).ToSententia();
                                 var tailFirst = firstCash.GetValueOrDefault(tail) ?? First(grammar, tail, dimension);
                                 firstCash.TryAdd(tail, tailFirst);
-
-                                if (approximations.GetValueOrDefault((leftNonterminal, rightNonterminal)) == null)
-                                {
-                                    approximations[(leftNonterminal, rightNonterminal)] = new HashSet<HashSet<SententialForm>>(HashSet<SententialForm>.CreateSetComparer());
-                                }
 
                                 approximations[(leftNonterminal, rightNonterminal)].Add(tailFirst);
                             }
@@ -169,7 +169,6 @@ namespace LLkGrammarChecker.Logic
                                     firstCash.TryAdd(tail, tailFirst);
 
                                     var directSum = TerminalDirectSum(approximation, tailFirst, dimension);
-
                                     approximations[(leftNonterminal, rightNonterminal)].Add(directSum);
                                 }
                             }
@@ -193,66 +192,17 @@ namespace LLkGrammarChecker.Logic
                 throw new ArgumentException($"Nonterminal {argument} is not from grammar.");
             }
 
-            var firstCash = new Dictionary<SententialForm, HashSet<SententialForm>>();
+            var sigma = Sigma(grammar, argument, dimension);
+            var follow = sigma.Count() == 0 ?
+                new HashSet<SententialForm>() :
+                sigma.Aggregate((set1, set2) => set1.Union(set2).ToHashSet());
 
-            var prevApproximations = new Dictionary<(Nonterminal, Nonterminal), HashSet<SententialForm>>();
-            var approximations = new Dictionary<(Nonterminal, Nonterminal), HashSet<SententialForm>>();
-
-            foreach (var leftNonterminal in grammar.Nonterminals)
+            if (argument == grammar.StartSymbol)
             {
-                foreach (var rightNonterminal in grammar.Nonterminals)
-                {
-                    if (approximations.GetValueOrDefault((leftNonterminal, rightNonterminal)) == null)
-                    {
-                        approximations[(leftNonterminal, rightNonterminal)] = new HashSet<SententialForm>();
-                    }
-
-                    foreach (var production in grammar.Productions.Where(p => p.left == leftNonterminal))
-                    {
-                        for (var i = 0; i < production.right.Length; ++i)
-                        {
-                            if (production.right[i] == rightNonterminal)
-                            {
-                                var tail = production.right.TakeLast(production.right.Length - i - 1).ToSententia();
-                                var tailFirst = firstCash.GetValueOrDefault(tail) ?? First(grammar, tail, dimension);
-                                firstCash.TryAdd(tail, tailFirst);
-
-                                approximations[(leftNonterminal, rightNonterminal)].UnionWith(tailFirst);
-                            }
-                        }
-                    }
-                }
+                follow.Add(SententialForm.Epsilon);
             }
 
-            while (!prevApproximations.DeepEquals(approximations))
-            {
-                prevApproximations = approximations.DeepCopy();
-
-                foreach (var leftNonterminal in grammar.Nonterminals)
-                {
-                    foreach (var rightNonterminal in grammar.Nonterminals)
-                    {
-                        foreach (var production in grammar.Productions.Where(p => p.left == leftNonterminal))
-                        {
-                            for (var i = 0; i < production.right.Length; ++i)
-                            {
-                                if (!(production.right[i] is Nonterminal)) continue;
-
-                                var tail = production.right.TakeLast(production.right.Length - i - 1).ToSententia();
-                                var tailFirst = firstCash.GetValueOrDefault(tail) ?? First(grammar, tail, dimension);
-                                firstCash.TryAdd(tail, tailFirst);
-
-                                var directSum = TerminalDirectSum(prevApproximations[(production.right[i] as Nonterminal, rightNonterminal)], tailFirst, dimension);
-
-                                approximations[(leftNonterminal, rightNonterminal)].UnionWith(directSum);
-                            }
-                        }
-                    }
-                }
-            }
-
-            approximations[(grammar.StartSymbol, grammar.StartSymbol)].Add(SententialForm.Epsilon);
-            return approximations[(grammar.StartSymbol, argument)];
+            return follow;
         }
 
         private HashSet<SententialForm> TerminalDirectSum(HashSet<SententialForm> left,
