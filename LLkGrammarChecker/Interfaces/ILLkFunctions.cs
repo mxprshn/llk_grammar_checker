@@ -11,5 +11,8 @@ namespace LLkGrammarChecker.Interfaces
         public HashSet<HashSet<SententialForm>> Sigma(CFG grammar, Nonterminal argument, int dimension = 1);
 
         public HashSet<SententialForm> Follow(CFG grammar, Nonterminal argument, int dimension = 1);
+
+        public HashSet<SententialForm> TerminalDirectSum(HashSet<SententialForm> left,
+            HashSet<SententialForm> right, int dimension = 1);
     }
 }

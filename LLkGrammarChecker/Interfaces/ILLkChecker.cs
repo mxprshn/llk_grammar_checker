@@ -6,5 +6,6 @@ namespace LLkGrammarChecker.Interfaces
 {
     interface ILLkChecker
     {
+        public bool Check(CFG grammar, int dimension = 1);
     }
 }

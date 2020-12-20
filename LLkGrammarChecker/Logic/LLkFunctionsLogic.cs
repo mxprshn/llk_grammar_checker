@@ -195,7 +195,7 @@ namespace LLkGrammarChecker.Logic
             return follow;
         }
 
-        private HashSet<SententialForm> TerminalDirectSum(HashSet<SententialForm> left,
+        public HashSet<SententialForm> TerminalDirectSum(HashSet<SententialForm> left,
             HashSet<SententialForm> right, int dimension = 1)
         {
             var result = new HashSet<SententialForm>();
