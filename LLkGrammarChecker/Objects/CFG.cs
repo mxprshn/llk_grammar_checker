@@ -8,7 +8,7 @@ namespace LLkGrammarChecker
     {
         public CFG(Nonterminal startSymbol) : base(startSymbol) { }
 
-        public override Grammar AddProduction(Sententia left, Sententia right)
+        public override Grammar AddProduction(SententialForm left, SententialForm right)
         {
             if (!left.IsNonterminal)
             {

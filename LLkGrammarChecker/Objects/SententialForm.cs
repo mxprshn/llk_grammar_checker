@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace LLkGrammarChecker
 {
-    public class Sententia : IEnumerable<GrammarSymbol>
+    public class SententialForm : IEnumerable<GrammarSymbol>
     {
         private GrammarSymbol[] elements;
 
@@ -18,22 +18,22 @@ namespace LLkGrammarChecker
 
         public GrammarSymbol this[int index] => elements[index];
 
-        public Sententia()
+        public SententialForm()
         {
             this.elements = new GrammarSymbol[0];
         }
 
-        public Sententia(IEnumerable<GrammarSymbol> elements)
+        public SententialForm(IEnumerable<GrammarSymbol> elements)
         {
             this.elements = elements.ToArray();
         }
 
-        public Sententia(GrammarSymbol element)
+        public SententialForm(GrammarSymbol element)
         {
             this.elements = new GrammarSymbol[] { element };
         }
 
-        public Sententia Trim(int lengthToKeep)
+        public SententialForm Trim(int lengthToKeep)
         {
             if (lengthToKeep < 0)
             {
@@ -43,12 +43,12 @@ namespace LLkGrammarChecker
             var newSize = Math.Min(lengthToKeep, elements.Length);
             var copy = new GrammarSymbol[newSize];
             Array.Copy(elements, copy, newSize);
-            return new Sententia(copy);
+            return new SententialForm(copy);
         }
 
         public override bool Equals(object obj)
         {
-            return (obj as Sententia).SequenceEqual(this);
+            return (obj as SententialForm).SequenceEqual(this);
         }
 
         public override int GetHashCode()
@@ -71,34 +71,44 @@ namespace LLkGrammarChecker
             return this.GetEnumerator();
         }
 
-        public static Sententia Epsilon => new Sententia();
+        public static SententialForm Epsilon => new SententialForm();
 
-        public static Sententia operator +(Sententia left, Sententia right)
+        public static SententialForm operator +(SententialForm left, SententialForm right)
         {
-            return new Sententia(left.Concat(right.elements));
+            return new SententialForm(left.Concat(right.elements));
         }
 
-        public static Sententia operator +(Sententia left, GrammarSymbol right)
+        public static SententialForm operator +(SententialForm left, GrammarSymbol right)
         {
-            return new Sententia(left.Concat(new GrammarSymbol[1] { right }));
+            return new SententialForm(left.Concat(new GrammarSymbol[1] { right }));
         }
 
-        public static bool operator ==(Sententia left, Nonterminal right)
+        public static bool operator ==(SententialForm left, SententialForm right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(SententialForm left, SententialForm right)
+        {
+            return !left.Equals(right);
+        }
+
+        public static bool operator ==(SententialForm left, Nonterminal right)
         {
             return left.IsNonterminal && left.elements[0] == right;
         }
 
-        public static bool operator !=(Sententia left, Nonterminal right)
+        public static bool operator !=(SententialForm left, Nonterminal right)
         {
             return !left.IsNonterminal || left.elements[0] != right;
         }
 
-        public static bool operator ==(Sententia left, Terminal right)
+        public static bool operator ==(SententialForm left, Terminal right)
         {
             return left.IsTerminal && left.elements[0] == right;
         }
 
-        public static bool operator !=(Sententia left, Terminal right)
+        public static bool operator !=(SententialForm left, Terminal right)
         {
             return !left.IsTerminal || left.elements[0] != right;
         }

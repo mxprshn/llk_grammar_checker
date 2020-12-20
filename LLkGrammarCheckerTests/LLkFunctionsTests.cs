@@ -13,6 +13,69 @@ namespace LLkGrammarCheckerTests
     {
         private LLkFunctionsLogic functions;
 
+        private static Nonterminal S = new Nonterminal("S");
+        private static Nonterminal A = new Nonterminal("A");
+        private static Nonterminal B = new Nonterminal("B");
+
+        private static Nonterminal E = new Nonterminal("E");
+        private static Nonterminal T = new Nonterminal("T");
+        private static Nonterminal F = new Nonterminal("F");
+        private static Nonterminal Ep = new Nonterminal("E'");
+        private static Nonterminal Tp = new Nonterminal("T'");
+
+        private static Terminal a = new Terminal("a");
+        private static Terminal b = new Terminal("b");
+
+        private static Terminal plus = new Terminal("+");
+        private static Terminal ast = new Terminal("*");
+        private static Terminal lBracket = new Terminal("(");
+        private static Terminal rBracket = new Terminal(")");
+        private static Terminal id = new Terminal("id");
+
+        private static CFG grammar1 = new CFG(S)
+            .AddNonterminal(A)
+            .AddNonterminal(B)
+            .AddTerminal(a) 
+            .AddTerminal(b)
+            .AddProduction(S, a + B)
+            .AddProduction(S, b + A)
+            .AddProduction(A, a)
+            .AddProduction(B, b)
+            .AddProduction(A, b + A + A)
+            .AddProduction(B, a + B + B)
+            .AddProduction(A, a + S)
+            .AddProduction(B, b + S) as CFG;
+
+        private static CFG grammar2 = new CFG(E)
+            .AddNonterminal(E)
+            .AddNonterminal(Ep)
+            .AddNonterminal(T)
+            .AddNonterminal(Tp)
+            .AddNonterminal(F)
+            .AddTerminal(plus)
+            .AddTerminal(ast)
+            .AddTerminal(lBracket)
+            .AddTerminal(rBracket)
+            .AddTerminal(id)
+            .AddProduction(E, T + Ep)
+            .AddProduction(Ep, plus + T + Ep)
+            .AddProduction(Ep, SententialForm.Epsilon)
+            .AddProduction(T, F + Tp)
+            .AddProduction(Tp, ast + F + Tp)
+            .AddProduction(Tp, SententialForm.Epsilon)
+            .AddProduction(F, lBracket + E + rBracket)
+            .AddProduction(F, id) as CFG;
+
+        private static CFG grammar3 = new CFG(S)
+            .AddNonterminal(A)
+            .AddNonterminal(B)
+            .AddTerminal(a)
+            .AddTerminal(b)
+            .AddProduction(S, a + A + a + a)
+            .AddProduction(S, b + A + b + a)
+            .AddProduction(A, b)
+            .AddProduction(A, SententialForm.Epsilon) as CFG;
+
         public LLkFunctionsTests()
         {
             var mockLogger = new Mock<ILogger>();
@@ -21,75 +84,29 @@ namespace LLkGrammarCheckerTests
 
         [Theory]
         [MemberData(nameof(FirstTestCases))]
-        public void FirstTest(CFG grammar, Sententia argument, int dimension, HashSet<Sententia> expected)
+        public void FirstTest(CFG grammar, SententialForm argument, int dimension, HashSet<SententialForm> expected)
         {
             var actual = functions.First(grammar, argument, dimension);
             Assert.True(expected.SetEquals(actual));
         }
 
-        public static IEnumerable<object[]> FirstTestCases()
+        [Theory]
+        [MemberData(nameof(FollowTestCases))]
+        public void FollowTest(CFG grammar, Nonterminal argument, int dimension, HashSet<SententialForm> expected)
         {
-            var S = new Nonterminal("S");
-            var A = new Nonterminal("A");
-            var B = new Nonterminal("B");
+            var actual = functions.Follow(grammar, argument, dimension);
+            Assert.True(expected.SetEquals(actual));
+        }
 
-            var E = new Nonterminal("E");
-            var T = new Nonterminal("T");
-            var F = new Nonterminal("F");
-            var Ep = new Nonterminal("E'");
-            var Tp = new Nonterminal("T'");
-
-            var a = new Terminal("a");
-            var b = new Terminal("b");
-
-            var plus = new Terminal("+");
-            var ast = new Terminal("*");
-            var lBracket = new Terminal("(");
-            var rBracket = new Terminal(")");
-            var id = new Terminal("id");
-
-            var grammar1 = new CFG(S)
-                .AddNonterminal(A)
-                .AddNonterminal(B)
-                .AddTerminal(a)
-                .AddTerminal(b)
-                .AddProduction(S, a + B)
-                .AddProduction(S, b + A)
-                .AddProduction(A, a)
-                .AddProduction(B, b)
-                .AddProduction(A, b + A + A)
-                .AddProduction(B, a + B + B)
-                .AddProduction(A, a + S)
-                .AddProduction(B, b + S);
-
-            var grammar2 = new CFG(E)
-                .AddNonterminal(E)
-                .AddNonterminal(Ep)
-                .AddNonterminal(T)
-                .AddNonterminal(Tp)
-                .AddNonterminal(F)
-                .AddTerminal(plus)
-                .AddTerminal(ast)
-                .AddTerminal(lBracket)
-                .AddTerminal(rBracket)
-                .AddTerminal(id)
-                .AddProduction(E, T + Ep)
-                .AddProduction(Ep, plus + T + Ep)
-                .AddProduction(Ep, Sententia.Epsilon)
-                .AddProduction(T, F + Tp)
-                .AddProduction(Tp, ast + F + Tp)
-                .AddProduction(Tp, Sententia.Epsilon)
-                .AddProduction(F, lBracket + E + rBracket)
-                .AddProduction(F, id);
-
-            return new List<object[]>()
+        public static IEnumerable<object[]> FirstTestCases =>
+            new List<object[]>()
             {
                 new object[]
                 {
                     grammar1,
-                    new Sententia(S),
+                    new SententialForm(S),
                     3,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
                         b + a,
                         a + b,
@@ -106,9 +123,9 @@ namespace LLkGrammarCheckerTests
                 new object[]
                 {
                     grammar1,
-                    new Sententia(S),
+                    new SententialForm(S),
                     2,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
                         b + a,
                         a + b,
@@ -119,22 +136,22 @@ namespace LLkGrammarCheckerTests
                 new object[]
                 {
                     grammar1,
-                    new Sententia(S),
+                    new SententialForm(S),
                     1,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(b),
-                        new Sententia(a)
+                        new SententialForm(b),
+                        new SententialForm(a)
                     }
                 },
                 new object[]
                 {
                     grammar1,
-                    new Sententia(A),
+                    new SententialForm(A),
                     3,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(a),
+                        new SententialForm(a),
                         a + a + b,
                         a + a + a,
                         a + b + a,
@@ -148,11 +165,11 @@ namespace LLkGrammarCheckerTests
                 new object[]
                 {
                     grammar1,
-                    new Sententia(A),
+                    new SententialForm(A),
                     2,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(a),
+                        new SententialForm(a),
                         b + a,
                         a + b,
                         a + a,
@@ -162,22 +179,22 @@ namespace LLkGrammarCheckerTests
                 new object[]
                 {
                     grammar1,
-                    new Sententia(A),
+                    new SententialForm(A),
                     1,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(b),
-                        new Sententia(a)
+                        new SententialForm(b),
+                        new SententialForm(a)
                     }
                 },
                 new object[]
                 {
                     grammar1,
-                    new Sententia(B),
+                    new SententialForm(B),
                     3,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(b),
+                        new SententialForm(b),
                         a + a + b,
                         a + a + a,
                         a + b + a,
@@ -191,11 +208,11 @@ namespace LLkGrammarCheckerTests
                 new object[]
                 {
                     grammar1,
-                    new Sententia(B),
+                    new SententialForm(B),
                     2,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(b),
+                        new SententialForm(b),
                         b + a,
                         a + b,
                         a + a,
@@ -205,70 +222,300 @@ namespace LLkGrammarCheckerTests
                 new object[]
                 {
                     grammar1,
-                    new Sententia(B),
+                    new SententialForm(B),
                     1,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(b),
-                        new Sententia(a)
+                        new SententialForm(b),
+                        new SententialForm(a)
                     }
                 },
                 new object[]
                 {
                     grammar2,
-                    new Sententia(E),
+                    new SententialForm(E),
                     1,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(lBracket),
-                        new Sententia(id)
+                        new SententialForm(lBracket),
+                        new SententialForm(id)
                     }
                 },
                 new object[]
                 {
                     grammar2,
-                    new Sententia(T),
+                    new SententialForm(T),
                     1,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(lBracket),
-                        new Sententia(id)
+                        new SententialForm(lBracket),
+                        new SententialForm(id)
                     }
                 },
                 new object[]
                 {
                     grammar2,
-                    new Sententia(F),
+                    new SententialForm(F),
                     1,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(lBracket),
-                        new Sententia(id)
+                        new SententialForm(lBracket),
+                        new SententialForm(id)
                     }
                 },
                 new object[]
                 {
                     grammar2,
-                    new Sententia(Ep),
+                    new SententialForm(Ep),
                     1,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(plus),
-                        Sententia.Epsilon
+                        new SententialForm(plus),
+                        SententialForm.Epsilon
                     }
                 },
                 new object[]
                 {
                     grammar2,
-                    new Sententia(Tp),
+                    new SententialForm(Tp),
                     1,
-                    new HashSet<Sententia>()
+                    new HashSet<SententialForm>()
                     {
-                        new Sententia(ast),
-                        Sententia.Epsilon
+                        new SententialForm(ast),
+                        SententialForm.Epsilon
+                    }
+                },
+                new object[]
+                {
+                    grammar3,
+                    b + a + a,
+                    2,
+                    new HashSet<SententialForm>()
+                    {
+                        b + a
+                    }
+                },
+                new object[]
+                {
+                    grammar3,
+                    a + a,
+                    2,
+                    new HashSet<SententialForm>()
+                    {
+                        a + a
+                    }
+                },
+                new object[]
+                {
+                    grammar3,
+                    b + b + a,
+                    2,
+                    new HashSet<SententialForm>()
+                    {
+                        b + b
                     }
                 }
             };
-        }
+
+        public static IEnumerable<object[]> FollowTestCases =>
+            new List<object[]>()
+            {
+                new object[]
+                {
+                    grammar1,
+                    B,
+                    3,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(a),
+                        new SententialForm(b),
+                        a + a,
+                        b + b,
+                        a + b,
+                        b + a,
+                        a + a + b,
+                        a + a + a,
+                        a + b + a,
+                        a + b + b,
+                        b + b + a,
+                        b + b + b,
+                        b + a + a,
+                        b + a + b
+                    }
+                },
+                new object[]
+                {
+                    grammar1,
+                    A,
+                    3,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(a),
+                        new SententialForm(b),
+                        a + a,
+                        b + b,
+                        a + b,
+                        b + a,
+                        a + a + b,
+                        a + a + a,
+                        a + b + a,
+                        a + b + b,
+                        b + b + a,
+                        b + b + b,
+                        b + a + a,
+                        b + a + b
+                    }
+                },
+                new object[]
+                {
+                    grammar1,
+                    A,
+                    2,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(a),
+                        new SententialForm(b),
+                        a + a,
+                        b + b,
+                        a + b,
+                        b + a
+                    }
+                },
+                new object[]
+                {
+                    grammar1,
+                    B,
+                    2,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(a),
+                        new SententialForm(b),
+                        a + a,
+                        b + b,
+                        a + b,
+                        b + a
+                    }
+                },
+                new object[]
+                {
+                    grammar1,
+                    B,
+                    1,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(b),
+                        new SententialForm(a)
+                    }
+                },
+                new object[]
+                {
+                    grammar1,
+                    A,
+                    1,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(b),
+                        new SententialForm(a)
+                    }
+                },
+                new object[]
+                {
+                    grammar1,
+                    S,
+                    1,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(b),
+                        new SententialForm(a)
+                    }
+                },
+                new object[]
+                {
+                    grammar2,
+                    E,
+                    1,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(rBracket),
+                    }
+                },
+                new object[]
+                {
+                    grammar2,
+                    Ep,
+                    1,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(rBracket),
+                    }
+                },
+                new object[]
+                {
+                    grammar2,
+                    T,
+                    1,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(rBracket),
+                        new SententialForm(plus)
+                    }
+                },
+                new object[]
+                {
+                    grammar2,
+                    Tp,
+                    1,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(rBracket),
+                        new SententialForm(plus)
+                    }
+                },
+                new object[]
+                {
+                    grammar2,
+                    F,
+                    1,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon,
+                        new SententialForm(rBracket),
+                        new SententialForm(plus),
+                        new SententialForm(ast)
+                    }
+                },
+                new object[]
+                {
+                    grammar3,
+                    A,
+                    2,
+                    new HashSet<SententialForm>()
+                    {
+                        a + a,
+                        b + a
+                    }
+                },
+                new object[]
+                {
+                    grammar3,
+                    S,
+                    2,
+                    new HashSet<SententialForm>()
+                    {
+                        SententialForm.Epsilon
+                    }
+                }
+            };
     }
 }

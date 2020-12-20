@@ -19,8 +19,8 @@ namespace LLkGrammarChecker
         private HashSet<Terminal> terminals = new HashSet<Terminal>();
         public IReadOnlyCollection<Terminal> Terminals => terminals;
 
-        private HashSet<(Sententia left, Sententia right)> productions = new HashSet<(Sententia left, Sententia right)>();
-        public IReadOnlyCollection<(Sententia left, Sententia right)> Productions => productions;
+        private HashSet<(SententialForm left, SententialForm right)> productions = new HashSet<(SententialForm left, SententialForm right)>();
+        public IReadOnlyCollection<(SententialForm left, SententialForm right)> Productions => productions;
 
         public Nonterminal StartSymbol { get; private set; }
 
@@ -36,7 +36,7 @@ namespace LLkGrammarChecker
             return this;
         }
 
-        public virtual Grammar AddProduction(Sententia left, Sententia right)
+        public virtual Grammar AddProduction(SententialForm left, SententialForm right)
         {
             if (productions.Any(p => p.left == left && p.right == right))
             {
@@ -48,19 +48,19 @@ namespace LLkGrammarChecker
             return this;
         }
 
-        public Grammar AddProduction(Nonterminal left, Sententia right)
+        public Grammar AddProduction(Nonterminal left, SententialForm right)
         {
-            return AddProduction(new Sententia(left), right);
+            return AddProduction(new SententialForm(left), right);
         }
 
         public Grammar AddProduction(Nonterminal left, GrammarSymbol right)
         {
-            return AddProduction(new Sententia(left), new Sententia(right));
+            return AddProduction(new SententialForm(left), new SententialForm(right));
         }
 
-        public Grammar AddProduction(Sententia left, GrammarSymbol right)
+        public Grammar AddProduction(SententialForm left, GrammarSymbol right)
         {
-            return AddProduction(new Sententia(left), new Sententia(right));
+            return AddProduction(new SententialForm(left), new SententialForm(right));
         }
     }
 }

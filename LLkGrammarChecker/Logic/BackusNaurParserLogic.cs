@@ -57,7 +57,7 @@ namespace LLkGrammarChecker
                         throw new BackusNaurParserException("Right part of the production cannot be empty.");
                     }
 
-                    var sententia = new Sententia();
+                    var sententia = new SententialForm();
 
                     foreach (var productionSymbol in productionSymbols)
                     {
@@ -74,7 +74,7 @@ namespace LLkGrammarChecker
                         }
                     }
 
-                    grammar.AddProduction(new Sententia(nonterminal), sententia);
+                    grammar.AddProduction(new SententialForm(nonterminal), sententia);
                 }
             }
 

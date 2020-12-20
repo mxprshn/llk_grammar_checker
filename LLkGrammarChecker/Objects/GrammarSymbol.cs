@@ -29,9 +29,9 @@ namespace LLkGrammarChecker
             return Literal;
         }
 
-        public static Sententia operator +(GrammarSymbol left, GrammarSymbol right)
+        public static SententialForm operator +(GrammarSymbol left, GrammarSymbol right)
         {
-            return new Sententia(new GrammarSymbol[2] { left, right });
+            return new SententialForm(new GrammarSymbol[2] { left, right });
         }
 
         public static bool operator ==(GrammarSymbol left, GrammarSymbol right)
