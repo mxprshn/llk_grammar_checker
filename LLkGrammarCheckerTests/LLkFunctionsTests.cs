@@ -76,6 +76,15 @@ namespace LLkGrammarCheckerTests
             .AddProduction(A, b)
             .AddProduction(A, SententialForm.Epsilon) as CFG;
 
+        private static CFG grammar4 = new CFG(S)
+            .AddNonterminal(A)
+            .AddTerminal(a)
+            .AddTerminal(b)
+            .AddProduction(S, A + S)
+            .AddProduction(S, SententialForm.Epsilon)
+            .AddProduction(A, a + A)
+            .AddProduction(A, b) as CFG;
+
         public LLkFunctionsTests()
         {
             var mockLogger = new Mock<ILogger>();
@@ -95,6 +104,14 @@ namespace LLkGrammarCheckerTests
         public void FollowTest(CFG grammar, Nonterminal argument, int dimension, HashSet<SententialForm> expected)
         {
             var actual = functions.Follow(grammar, argument, dimension);
+            Assert.True(expected.SetEquals(actual));
+        }
+
+        [Theory]
+        [MemberData(nameof(SigmaTestCases))]
+        public void SigmaTest(CFG grammar, Nonterminal argument, int dimension, HashSet<HashSet<SententialForm>> expected)
+        {
+            var actual = functions.Sigma(grammar, argument, dimension);
             Assert.True(expected.SetEquals(actual));
         }
 
@@ -514,6 +531,39 @@ namespace LLkGrammarCheckerTests
                     new HashSet<SententialForm>()
                     {
                         SententialForm.Epsilon
+                    }
+                }
+            };
+
+        public static IEnumerable<object[]> SigmaTestCases =>
+            new List<object[]>()
+            {
+                new object[]
+                {
+                    grammar4,
+                    S,
+                    1,
+                    new HashSet<HashSet<SententialForm>>(HashSet<SententialForm>.CreateSetComparer())
+                    {
+                        new HashSet<SententialForm>()
+                        {
+                            SententialForm.Epsilon
+                        }
+                    }
+                },
+                new object[]
+                {
+                    grammar4,
+                    A,
+                    1,
+                    new HashSet<HashSet<SententialForm>>(HashSet<SententialForm>.CreateSetComparer())
+                    {
+                        new HashSet<SententialForm>()
+                        {
+                            SententialForm.Epsilon,
+                            new SententialForm(a),
+                            new SententialForm(b)
+                        }
                     }
                 }
             };

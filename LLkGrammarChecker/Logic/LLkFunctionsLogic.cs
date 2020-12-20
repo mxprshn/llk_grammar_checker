@@ -182,16 +182,6 @@ namespace LLkGrammarChecker.Logic
 
         public HashSet<SententialForm> Follow(CFG grammar, Nonterminal argument, int dimension = 1)
         {
-            if (dimension <= 0)
-            {
-                throw new ArgumentException("Dimension must be a positive number.");
-            }
-
-            if (!grammar.Nonterminals.Contains(argument))
-            {
-                throw new ArgumentException($"Nonterminal {argument} is not from grammar.");
-            }
-
             var sigma = Sigma(grammar, argument, dimension);
             var follow = sigma.Count() == 0 ?
                 new HashSet<SententialForm>() :
