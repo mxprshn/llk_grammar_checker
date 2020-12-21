@@ -58,6 +58,8 @@ namespace LLkGrammarChecker
 
         public override string ToString()
         {
+            if (elements.Length == 0) return "ε";
+
             return String.Join(String.Empty, elements.Select(e => e.Literal));
         }
 
@@ -85,31 +87,49 @@ namespace LLkGrammarChecker
 
         public static bool operator ==(SententialForm left, SententialForm right)
         {
+            if (ReferenceEquals(null, left))
+                return ReferenceEquals(null, right);
+
             return left.Equals(right);
         }
 
         public static bool operator !=(SententialForm left, SententialForm right)
         {
+            if (ReferenceEquals(null, left))
+                return !ReferenceEquals(null, right);
+
             return !left.Equals(right);
         }
 
         public static bool operator ==(SententialForm left, Nonterminal right)
         {
+            if (ReferenceEquals(null, left))
+                return ReferenceEquals(null, right);
+
             return left.IsNonterminal && left.elements[0] == right;
         }
 
         public static bool operator !=(SententialForm left, Nonterminal right)
         {
+            if (ReferenceEquals(null, left))
+                return !ReferenceEquals(null, right);
+
             return !left.IsNonterminal || left.elements[0] != right;
         }
 
         public static bool operator ==(SententialForm left, Terminal right)
         {
+            if (ReferenceEquals(null, left))
+                return ReferenceEquals(null, right);
+
             return left.IsTerminal && left.elements[0] == right;
         }
 
         public static bool operator !=(SententialForm left, Terminal right)
         {
+            if (ReferenceEquals(null, left))
+                return !ReferenceEquals(null, right);
+
             return !left.IsTerminal || left.elements[0] != right;
         }
     }

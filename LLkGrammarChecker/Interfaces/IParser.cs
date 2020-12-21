@@ -7,8 +7,8 @@ namespace LLkGrammarChecker.Parser
 {
     interface IParser
     {
-        public Task<CFG> FromFile(string path);
+        public Cfg FromFile(string path);
 
-        public CFG FromString(string source);
+        public Cfg FromString(string source);
     }
 }

@@ -33,7 +33,7 @@ namespace LLkGrammarCheckerTests
         private static Terminal rBracket = new Terminal(")");
         private static Terminal id = new Terminal("id");
 
-        private static CFG grammar1 = new CFG(S)
+        private static Cfg grammar1 = new Cfg(S)
             .AddNonterminal(A)
             .AddNonterminal(B)
             .AddTerminal(a)
@@ -45,9 +45,9 @@ namespace LLkGrammarCheckerTests
             .AddProduction(A, b + A + A)
             .AddProduction(B, a + B + B)
             .AddProduction(A, a + S)
-            .AddProduction(B, b + S) as CFG;
+            .AddProduction(B, b + S) as Cfg;
 
-        private static CFG grammar2 = new CFG(S)
+        private static Cfg grammar2 = new Cfg(S)
             .AddNonterminal(A)
             .AddNonterminal(B)
             .AddTerminal(a)
@@ -57,9 +57,9 @@ namespace LLkGrammarCheckerTests
             .AddProduction(A, a)
             .AddProduction(A, a + b)
             .AddProduction(B, a)
-            .AddProduction(B, a + B) as CFG;
+            .AddProduction(B, a + B) as Cfg;
 
-        private static CFG grammar3 = new CFG(E)
+        private static Cfg grammar3 = new Cfg(E)
             .AddNonterminal(E)
             .AddNonterminal(Ep)
             .AddNonterminal(T)
@@ -77,7 +77,7 @@ namespace LLkGrammarCheckerTests
             .AddProduction(Tp, ast + F + Tp)
             .AddProduction(Tp, SententialForm.Epsilon)
             .AddProduction(F, lBracket + E + rBracket)
-            .AddProduction(F, id) as CFG;
+            .AddProduction(F, id) as Cfg;
 
         public LLkCheckerTests()
         {
@@ -88,7 +88,7 @@ namespace LLkGrammarCheckerTests
 
         [Theory]
         [MemberData(nameof(CheckTestCases))]
-        public void CheckTest(CFG grammar, int dimension, bool expected)
+        public void CheckTest(Cfg grammar, int dimension, bool expected)
         {
             var actual = checker.Check(grammar, dimension);
             Assert.Equal(expected, actual);

@@ -20,6 +20,9 @@ namespace LLkGrammarChecker
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(null, obj))
+                return ReferenceEquals(null, this);
+
             var haveSameType = obj.GetType() == this.GetType();
             return haveSameType && ((GrammarSymbol)obj).Literal == Literal ;
         }
@@ -36,11 +39,17 @@ namespace LLkGrammarChecker
 
         public static bool operator ==(GrammarSymbol left, GrammarSymbol right)
         {
+            if (ReferenceEquals(null, left))
+                return ReferenceEquals(null, right);
+
             return left.Equals(right);
         }
 
         public static bool operator !=(GrammarSymbol left, GrammarSymbol right)
         {
+            if (ReferenceEquals(null, left))
+                return !ReferenceEquals(null, right);
+
             return !left.Equals(right);
         }
     }

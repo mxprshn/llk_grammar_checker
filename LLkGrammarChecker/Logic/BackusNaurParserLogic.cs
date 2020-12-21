@@ -11,16 +11,18 @@ namespace LLkGrammarChecker
 {
     public class BackusNaurParserLogic : IParser
     {
-        public async Task<CFG> FromFile(string path)
+        private const string EpsilonLiteral = "eps";
+
+        public Cfg FromFile(string path)
         {
             if (!File.Exists(path)) throw new FileNotFoundException();
 
-            return FromString(await File.ReadAllTextAsync(path));
+            return FromString(File.ReadAllText(path));
         }
 
-        public CFG FromString(string source)
+        public Cfg FromString(string source)
         {
-            CFG grammar = null;
+            Cfg grammar = null;
 
             var lines = source.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -40,7 +42,7 @@ namespace LLkGrammarChecker
                 }
                 else
                 {
-                    grammar = new CFG(nonterminal);
+                    grammar = new Cfg(nonterminal);
                 }                
 
                 if (grammar.Productions.Count(p => p.left == nonterminal) != 0)
@@ -61,15 +63,26 @@ namespace LLkGrammarChecker
 
                     foreach (var productionSymbol in productionSymbols)
                     {
-                        if (IsInAngleBrackets(productionSymbol))
+                        if (productionSymbol == EpsilonLiteral)
                         {
-                            var productionNonterminal = new Nonterminal(productionSymbol);
+                            if (productionSymbols.Length != 1)
+                            {
+                                throw new BackusNaurParserException("Right part of production cannot contain symbols other than epsilon.");
+                            }
+
+                            sententia = SententialForm.Epsilon;
+                        }
+                        else if (IsInAngleBrackets(productionSymbol))
+                        {
+                            var productionNonterminal = new Nonterminal(FromAngleBrackets(productionSymbol));
+                            grammar.AddNonterminal(productionNonterminal);
                             sententia += productionNonterminal;
                         }
                         else
                         {
                             var withoutQuotes = FromQuotes(productionSymbol);
                             var productionTerminal = new Terminal(withoutQuotes);
+                            grammar.AddTerminal(productionTerminal);
                             sententia += productionTerminal;
                         }
                     }

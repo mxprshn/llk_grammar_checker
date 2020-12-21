@@ -17,7 +17,7 @@ namespace LLkGrammarChecker.Logic
             this.logger = logger;
         }
 
-        public HashSet<SententialForm> First(CFG grammar, SententialForm argument, int dimension = 1)
+        public HashSet<SententialForm> First(Cfg grammar, SententialForm argument, int dimension = 1)
         {
             if (dimension <= 0)
             {
@@ -105,7 +105,7 @@ namespace LLkGrammarChecker.Logic
             return result;
         }
 
-        public HashSet<HashSet<SententialForm>> Sigma(CFG grammar, Nonterminal argument, int dimension = 1)
+        public HashSet<HashSet<SententialForm>> Sigma(Cfg grammar, Nonterminal argument, int dimension = 1)
         {
             if (dimension <= 0)
             {
@@ -180,7 +180,7 @@ namespace LLkGrammarChecker.Logic
             return approximations[(grammar.StartSymbol, argument)];
         }
 
-        public HashSet<SententialForm> Follow(CFG grammar, Nonterminal argument, int dimension = 1)
+        public HashSet<SententialForm> Follow(Cfg grammar, Nonterminal argument, int dimension = 1)
         {
             var sigma = Sigma(grammar, argument, dimension);
             var follow = sigma.Count() == 0 ?

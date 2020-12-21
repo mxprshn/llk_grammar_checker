@@ -4,8 +4,8 @@ using System.Text;
 
 namespace LLkGrammarChecker.Interfaces
 {
-    interface ILLkChecker
+    public interface ILLkChecker
     {
-        public bool Check(CFG grammar, int dimension = 1);
+        public bool Check(Cfg grammar, int dimension = 1);
     }
 }

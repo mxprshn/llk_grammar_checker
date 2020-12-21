@@ -32,7 +32,7 @@ namespace LLkGrammarCheckerTests
         private static Terminal rBracket = new Terminal(")");
         private static Terminal id = new Terminal("id");
 
-        private static CFG grammar1 = new CFG(S)
+        private static Cfg grammar1 = new Cfg(S)
             .AddNonterminal(A)
             .AddNonterminal(B)
             .AddTerminal(a) 
@@ -44,9 +44,9 @@ namespace LLkGrammarCheckerTests
             .AddProduction(A, b + A + A)
             .AddProduction(B, a + B + B)
             .AddProduction(A, a + S)
-            .AddProduction(B, b + S) as CFG;
+            .AddProduction(B, b + S) as Cfg;
 
-        private static CFG grammar2 = new CFG(E)
+        private static Cfg grammar2 = new Cfg(E)
             .AddNonterminal(E)
             .AddNonterminal(Ep)
             .AddNonterminal(T)
@@ -64,9 +64,9 @@ namespace LLkGrammarCheckerTests
             .AddProduction(Tp, ast + F + Tp)
             .AddProduction(Tp, SententialForm.Epsilon)
             .AddProduction(F, lBracket + E + rBracket)
-            .AddProduction(F, id) as CFG;
+            .AddProduction(F, id) as Cfg;
 
-        private static CFG grammar3 = new CFG(S)
+        private static Cfg grammar3 = new Cfg(S)
             .AddNonterminal(A)
             .AddNonterminal(B)
             .AddTerminal(a)
@@ -74,16 +74,16 @@ namespace LLkGrammarCheckerTests
             .AddProduction(S, a + A + a + a)
             .AddProduction(S, b + A + b + a)
             .AddProduction(A, b)
-            .AddProduction(A, SententialForm.Epsilon) as CFG;
+            .AddProduction(A, SententialForm.Epsilon) as Cfg;
 
-        private static CFG grammar4 = new CFG(S)
+        private static Cfg grammar4 = new Cfg(S)
             .AddNonterminal(A)
             .AddTerminal(a)
             .AddTerminal(b)
             .AddProduction(S, A + S)
             .AddProduction(S, SententialForm.Epsilon)
             .AddProduction(A, a + A)
-            .AddProduction(A, b) as CFG;
+            .AddProduction(A, b) as Cfg;
 
         public LLkFunctionsTests()
         {
@@ -93,7 +93,7 @@ namespace LLkGrammarCheckerTests
 
         [Theory]
         [MemberData(nameof(FirstTestCases))]
-        public void FirstTest(CFG grammar, SententialForm argument, int dimension, HashSet<SententialForm> expected)
+        public void FirstTest(Cfg grammar, SententialForm argument, int dimension, HashSet<SententialForm> expected)
         {
             var actual = functions.First(grammar, argument, dimension);
             Assert.True(expected.SetEquals(actual));
@@ -101,7 +101,7 @@ namespace LLkGrammarCheckerTests
 
         [Theory]
         [MemberData(nameof(FollowTestCases))]
-        public void FollowTest(CFG grammar, Nonterminal argument, int dimension, HashSet<SententialForm> expected)
+        public void FollowTest(Cfg grammar, Nonterminal argument, int dimension, HashSet<SententialForm> expected)
         {
             var actual = functions.Follow(grammar, argument, dimension);
             Assert.True(expected.SetEquals(actual));
@@ -109,7 +109,7 @@ namespace LLkGrammarCheckerTests
 
         [Theory]
         [MemberData(nameof(SigmaTestCases))]
-        public void SigmaTest(CFG grammar, Nonterminal argument, int dimension, HashSet<HashSet<SententialForm>> expected)
+        public void SigmaTest(Cfg grammar, Nonterminal argument, int dimension, HashSet<HashSet<SententialForm>> expected)
         {
             var actual = functions.Sigma(grammar, argument, dimension);
             Assert.True(expected.SetEquals(actual));

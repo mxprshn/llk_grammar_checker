@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LLkGrammarCheckerConsole": {
+      "commandName": "Project",
+      "commandLineArgs": "test.txt"
+    }
+  }
+}

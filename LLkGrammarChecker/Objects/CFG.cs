@@ -4,9 +4,9 @@ using System.Text;
 
 namespace LLkGrammarChecker
 {
-    public class CFG : Grammar
+    public class Cfg : Grammar
     {
-        public CFG(Nonterminal startSymbol) : base(startSymbol) { }
+        public Cfg(Nonterminal startSymbol) : base(startSymbol) { }
 
         public override Grammar AddProduction(SententialForm left, SententialForm right)
         {

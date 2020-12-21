@@ -19,7 +19,7 @@ namespace LLkGrammarChecker
             this.functions = functions;
         }
 
-        public bool Check(CFG grammar, int dimension = 1)
+        public bool Check(Cfg grammar, int dimension = 1)
         {
             if (dimension <= 0)
             {
