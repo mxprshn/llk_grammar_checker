@@ -177,6 +177,8 @@ namespace LLkGrammarChecker.Logic
                 }
             }
 
+            approximations[(grammar.StartSymbol, grammar.StartSymbol)].Add(new HashSet<SententialForm>() { SententialForm.Epsilon });
+
             return approximations[(grammar.StartSymbol, argument)];
         }
 
